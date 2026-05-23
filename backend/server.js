@@ -8,6 +8,7 @@ import {
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 import helmet from "helmet";
+import auth from "./src/routers/auth.js";
 import {
   readAllAssets,
   seedAssets,
@@ -28,6 +29,7 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(helmet());
 app.use(cors());
+app.use("/auth", auth);
 
 app.use(jsonErrorHandler);
 
