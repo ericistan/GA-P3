@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 
 function AuthModal({ showAuthModal, setShowAuthModal }) {
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -19,6 +20,7 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       let data;
@@ -31,6 +33,11 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
         console.log("Login successful:", data);
       } else {
         data = await signupUser(formData);
+      }
+
+      if (data.success === false) {
+        setError(data.message);
+        return;
       }
 
       if (data.token) {
@@ -107,7 +114,10 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
           "
         >
           <button
-            onClick={() => setIsLogin(true)}
+            onClick={() => {
+              setIsLogin(true);
+              setError("");
+            }}
             className={`
               text-lg
               font-semibold
@@ -121,7 +131,10 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
           </button>
 
           <button
-            onClick={() => setIsLogin(false)}
+            onClick={() => {
+              setIsLogin(false);
+              setError("");
+            }}
             className={`
               text-lg
               font-semibold
@@ -187,6 +200,18 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
               outline-none
             "
           />
+          {error && (
+            <p
+              className="
+        text-red-400
+        text-sm
+        mb-4
+        text-center
+      "
+            >
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
