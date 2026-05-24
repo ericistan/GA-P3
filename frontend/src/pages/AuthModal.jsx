@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 
 function AuthModal({ showAuthModal, setShowAuthModal }) {
   const [isLogin, setIsLogin] = useState(true);
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -20,7 +20,7 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setMessage("");
 
     try {
       let data;
@@ -30,14 +30,25 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
           email: formData.email,
           password: formData.password,
         });
+
         console.log("Login successful:", data);
       } else {
         data = await signupUser(formData);
+        setMessage(data.message);
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+        });
       }
 
       if (data.success === false) {
-        setError(data.message);
+        setMessage(data.message);
         return;
+      }
+
+      if (isLogin) {
+        setShowAuthModal(false);
       }
 
       if (data.token) {
@@ -47,8 +58,6 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
           data.token,
         );
       }
-
-      setShowAuthModal(false);
     } catch (error) {
       console.error(error);
     }
@@ -116,7 +125,7 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
           <button
             onClick={() => {
               setIsLogin(true);
-              setError("");
+              setMessage("");
             }}
             className={`
               text-lg
@@ -133,7 +142,7 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
           <button
             onClick={() => {
               setIsLogin(false);
-              setError("");
+              setMessage("");
             }}
             className={`
               text-lg
@@ -200,7 +209,7 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
               outline-none
             "
           />
-          {error && (
+          {message && (
             <p
               className="
         text-red-400
@@ -209,7 +218,7 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
         text-center
       "
             >
-              {error}
+              {message}
             </p>
           )}
 
