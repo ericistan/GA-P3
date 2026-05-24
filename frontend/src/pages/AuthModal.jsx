@@ -28,6 +28,7 @@ function AuthModal({ showAuthModal, setShowAuthModal }) {
           email: formData.email,
           password: formData.password,
         });
+        console.log("Login successful:", data);
       } else {
         data = await signupUser(formData);
       }
