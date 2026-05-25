@@ -6,6 +6,7 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
   const [price, setPrice] = useState(selectedCoin.current_price);
   const [fee, setFee] = useState("");
   const [notes, setNotes] = useState("");
+  const [transferType, setTransferType] = useState("Transfer In");
   const [date, setDate] = useState(() => {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -13,30 +14,41 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
   });
   const totalSpent =
     (Number(quantity) || 0) * (Number(price) || 0) + (Number(fee) || 0);
+
   const handleSubmit = () => {
+    const rawAmount =
+      (Number(quantity) || 0) * (Number(price) || 0) + (Number(fee) || 0);
+    const amount =
+      transactionType === "buy"
+        ? -rawAmount
+        : transactionType === "sell"
+          ? rawAmount
+          : transferType === "Transfer In"
+            ? rawAmount
+            : -rawAmount;
     const newTransaction = {
       id: Date.now(),
-
-      type: transactionType,
+      type:
+        transactionType === "transfer"
+          ? transferType === "Transfer In"
+            ? "transfer_in"
+            : "transfer_out"
+          : transactionType,
 
       coinName: selectedCoin.name,
-
       coinSymbol: selectedCoin.symbol,
-
       quantity,
-
       price,
-
       fee,
-
       notes,
-
       date,
-
-      totalSpent,
+      amount,
     };
 
+    console.log("Transaction:");
     console.log(newTransaction);
+    console.log("Amount:");
+    console.log(amount);
 
     setShowTransactionModal(false);
   };
@@ -49,7 +61,7 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
     flex
     justify-center
     items-start
-    pt-10
+    pt-12
     z-50
   "
     >
@@ -168,22 +180,115 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
             </p>
           </div>
         </div>
-        <div
-          className="
-    grid
-    grid-cols-2
-    gap-4
-    mb-5
-    mt-3
-  "
-        >
-          {/* QUANTITY */}
+        {transactionType !== "transfer" ? (
+          <div
+            className="
+      grid
+      grid-cols-2
+      gap-4
+      mb-5
+      mt-3
+    "
+          >
+            {/* QUANTITY */}
 
-          <div>
+            <div>
+              <p
+                className="
+          text-gray-300
+          mb-4
+          font-medium
+        "
+              >
+                Quantity
+              </p>
+
+              <input
+                type="number"
+                min="0"
+                step="any"
+                placeholder="0.00"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="
+          w-full
+          bg-[#2A2E45]
+          text-white
+          p-3
+          rounded-2xl
+          outline-none
+        "
+              />
+            </div>
+
+            {/* PRICE */}
+
+            <div>
+              <p
+                className="
+          text-gray-300
+          mb-4
+          font-medium
+        "
+              >
+                Price Per Coin $
+              </p>
+
+              <input
+                type="number"
+                min="0"
+                step="any"
+                placeholder="0.00"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="
+          w-full
+          bg-[#2A2E45]
+          text-white
+          p-3
+          rounded-2xl
+          outline-none
+        "
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 mb-5">
+            {/* TRANSFER TYPE */}
+
             <p
               className="
         text-gray-300
-        text-2lg
+        mb-4
+        font-medium
+      "
+            >
+              Transfer
+            </p>
+
+            <select
+              value={transferType}
+              onChange={(e) => setTransferType(e.target.value)}
+              className="
+        w-full
+        bg-[#2A2E45]
+        text-white
+        p-3
+        rounded-2xl
+        outline-none
+        mb-5
+      "
+            >
+              <option>Transfer In</option>
+
+              <option>Transfer Out</option>
+            </select>
+
+            {/* QUANTITY */}
+
+            <p
+              className="
+        text-gray-300
         mb-4
         font-medium
       "
@@ -202,49 +307,13 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
         w-full
         bg-[#2A2E45]
         text-white
-        p-2
+        p-3
         rounded-2xl
         outline-none
-        text-2s
-        placeholder:text-gray-500
       "
             />
           </div>
-
-          {/* PRICE */}
-
-          <div>
-            <p
-              className="
-        text-gray-300
-        text-2l
-        mb-4
-        font-medium
-      "
-            >
-              Price Per Coin $
-            </p>
-
-            <input
-              type="number"
-              min="0"
-              step="any"
-              placeholder="0.00"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="
-        w-full
-        bg-[#2A2E45]
-        text-white
-        p-2
-        rounded-2xl
-        outline-none
-        text-2s
-        placeholder:text-gray-500
-      "
-            />
-          </div>
-        </div>
+        )}
         <div
           className="
     flex
@@ -317,34 +386,36 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
   "
           />
         </div>
-        <div
-          className="
-    bg-[#2A2E45]
-    rounded-3xl
-    p-3
-    mb-6
-  "
-        >
-          <p
+        {transactionType !== "transfer" && (
+          <div
             className="
-      text-gray-400
-      text-xl
-      mb-2
+      bg-[#2A2E45]
+      rounded-3xl
+      p-3
+      mb-6
     "
           >
-            {transactionType === "sell" ? "Total Received" : "Total Spent"}
-          </p>
+            <p
+              className="
+        text-gray-400
+        text-xl
+        mb-2
+      "
+            >
+              {transactionType === "sell" ? "Total Received" : "Total Spent"}
+            </p>
 
-          <p
-            className="
-      text-white
-      text-3xl
-      font-bold
-    "
-          >
-            ${totalSpent.toLocaleString()}
-          </p>
-        </div>
+            <p
+              className="
+        text-white
+        text-3xl
+        font-bold
+      "
+            >
+              ${totalSpent.toLocaleString()}
+            </p>
+          </div>
+        )}
         <button
           onClick={handleSubmit}
           className="
