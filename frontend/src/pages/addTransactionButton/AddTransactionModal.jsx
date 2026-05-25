@@ -180,82 +180,10 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
             </p>
           </div>
         </div>
-        {transactionType !== "transfer" ? (
-          <div
-            className="
-      grid
-      grid-cols-2
-      gap-4
-      mb-5
-      mt-3
-    "
-          >
-            {/* QUANTITY */}
+        {/* TRANSFER TYPE */}
 
-            <div>
-              <p
-                className="
-          text-gray-300
-          mb-4
-          font-medium
-        "
-              >
-                Quantity
-              </p>
-
-              <input
-                type="number"
-                min="0"
-                step="any"
-                placeholder="0.00"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                className="
-          w-full
-          bg-[#2A2E45]
-          text-white
-          p-3
-          rounded-2xl
-          outline-none
-        "
-              />
-            </div>
-
-            {/* PRICE */}
-
-            <div>
-              <p
-                className="
-          text-gray-300
-          mb-4
-          font-medium
-        "
-              >
-                Price Per Coin $
-              </p>
-
-              <input
-                type="number"
-                min="0"
-                step="any"
-                placeholder="0.00"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="
-          w-full
-          bg-[#2A2E45]
-          text-white
-          p-3
-          rounded-2xl
-          outline-none
-        "
-              />
-            </div>
-          </div>
-        ) : (
+        {transactionType === "transfer" && (
           <div className="mt-3 mb-5">
-            {/* TRANSFER TYPE */}
-
             <p
               className="
         text-gray-300
@@ -276,16 +204,29 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
         p-3
         rounded-2xl
         outline-none
-        mb-5
       "
             >
               <option>Transfer In</option>
 
               <option>Transfer Out</option>
             </select>
+          </div>
+        )}
 
-            {/* QUANTITY */}
+        {/* QUANTITY + PRICE */}
 
+        <div
+          className="
+    grid
+    grid-cols-2
+    gap-4
+    mb-5
+    mt-3
+  "
+        >
+          {/* QUANTITY */}
+
+          <div>
             <p
               className="
         text-gray-300
@@ -313,7 +254,38 @@ function AddTransactionModal({ selectedCoin, setShowTransactionModal }) {
       "
             />
           </div>
-        )}
+
+          {/* PRICE */}
+
+          <div>
+            <p
+              className="
+        text-gray-300
+        mb-4
+        font-medium
+      "
+            >
+              Price Per Coin $
+            </p>
+
+            <input
+              type="number"
+              min="0"
+              step="any"
+              placeholder="0.00"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="
+        w-full
+        bg-[#2A2E45]
+        text-white
+        p-3
+        rounded-2xl
+        outline-none
+      "
+            />
+          </div>
+        </div>
         <div
           className="
     flex
