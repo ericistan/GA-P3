@@ -1,6 +1,6 @@
 import React from "react";
-import { AssetsTable } from "../components/portfolioDashboard/AssetsTable.jsx";
-import { TransactionTable } from "../components/portfolioDashboard/TransactionTable.jsx";
+import { AssetsTable } from "../components/AssetsTable.jsx";
+import { TransactionTable } from "../components/TransactionTable.jsx";
 
 import { Card, Tabs, Button } from "flowbite-react";
 1;
