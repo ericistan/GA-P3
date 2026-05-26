@@ -12,9 +12,8 @@ export const seedTranactions = async (req, res) => {
 
     const seed = [
       {
-        userId: dummyUserId,
         transType: "Buy",
-        coinType: bitcoin._id,
+        coinType: "bitcoin",
         quantity: 0.02,
         fee: 2,
         notes: "this is a test transaction to input, does not mean i very rich",
@@ -23,9 +22,8 @@ export const seedTranactions = async (req, res) => {
         time: "14:00",
       },
       {
-        userId: dummyUserId,
         transType: "Buy",
-        coinType: bitcoin._id,
+        coinType: "bitcoin",
         quantity: 0.02,
         fee: 2,
         notes:
@@ -35,9 +33,8 @@ export const seedTranactions = async (req, res) => {
         time: "15:00",
       },
       {
-        userId: dummyUserId,
         transType: "Buy",
-        coinType: ethereum._id,
+        coinType: "ethereum",
         quantity: 0.1,
         fee: 2,
         notes:
@@ -47,9 +44,8 @@ export const seedTranactions = async (req, res) => {
         time: "09:00",
       },
       {
-        userId: dummyUserId,
         transType: "Sell",
-        coinType: bnb._id,
+        coinType: "bnb",
         quantity: 2,
         fee: 2.5,
         notes:
@@ -59,9 +55,8 @@ export const seedTranactions = async (req, res) => {
         time: "14:30",
       },
       {
-        userId: dummyUserId,
         transType: "Sell",
-        coinType: solana._id,
+        coinType: "solana",
         quantity: 2,
         fee: 2.5,
         notes:
