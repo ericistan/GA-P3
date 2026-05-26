@@ -128,10 +128,23 @@ export const readAllTransactions = async (req, res) => {
       "-__v",
     );
     if (!user) return res.status(404).json({ msg: "user not found" });
+
+    const show = user.transactions.map((item) => {
+      const cal = item.pricePerCoin * item.quantity + (item.fee || 0);
+
+      // need to convert item (mongoose doc) to raw json
+      const object = item.toObject();
+      return {
+        ...object,
+        amount: cal,
+      };
+    });
+
     res.json({
-      status: "fetch successfully",
+      status: "ok",
       user: user.username,
-      transactions: user.transactions,
+      // transactions: user.transactions,
+      show: show,
     });
   } catch (error) {
     console.error(error.message);
@@ -161,7 +174,7 @@ export const updateTransaction = async (req, res) => {
     await user.save();
     res.json({
       status: "ok",
-      message: "update successfully",
+      msg: "update successfully",
       content: updated,
     });
   } catch (error) {
@@ -214,6 +227,8 @@ export const postTransaction = async (req, res) => {
       "id symbol name image current_price market_cap_rank", // Select only the fields you need
     );
 
+    const cal = trans.pricePerCoin * trans.quantity + (trans.fee || 0);
+
     res.json({
       status: "ok",
       msg: "entry found",
@@ -226,6 +241,7 @@ export const postTransaction = async (req, res) => {
         notes: trans.notes,
         date: trans.date,
         time: trans.time,
+        amount: cal,
       },
     });
   } catch (error) {
