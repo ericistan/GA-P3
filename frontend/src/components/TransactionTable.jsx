@@ -6,13 +6,14 @@ import {
   TableHeadCell,
   TableRow,
 } from "flowbite-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { useState, useEffect } from "react";
 import { getTransactions } from "../services/transactionApi.js";
 
 export function TransactionTable({ refreshTrigger, user }) {
   const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const formatTransactionType = (type) => {
     switch (type) {
@@ -64,8 +65,7 @@ export function TransactionTable({ refreshTrigger, user }) {
         setLoading(true);
         setError(null);
         const data = await getTransactions();
-        console.log(`Transactions data:`, data);
-        setTransactions(data.data);
+        setTransactions(data.data || []); //empty array fallback because backend returns {transactions: null} when user has no transactions
       } catch (err) {
         setError("Failed to load transactions");
       } finally {
@@ -81,6 +81,15 @@ export function TransactionTable({ refreshTrigger, user }) {
 
   if (error) {
     return <p>{error}</p>;
+  }
+
+  if (transactions.length === 0) {
+    return (
+      <div className="text-center py-12 text-gray-400">
+        <p className="text-lg mb-2">No transactions yet</p>
+        <p className="text-sm">Add a transaction to get started</p>
+      </div>
+    );
   }
 
   return (
@@ -149,12 +158,20 @@ export function TransactionTable({ refreshTrigger, user }) {
               <TableCell>${transaction.fee}</TableCell>
               <TableCell>{transaction.notes}</TableCell>
               <TableCell className="text-right">
-                <a
-                  href="#"
-                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                >
-                  Edit
-                </a>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={""}
+                    className="text-gray-400 hover:text-blue-400 cursor-pointer transition"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <button
+                    onClick={""}
+                    className="text-gray-400 hover:text-red-400 cursor-pointer transition"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

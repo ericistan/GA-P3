@@ -12,7 +12,7 @@ import { getMyAssets } from "../services/transactionApi.js";
 
 export function AssetsTable({ user }) {
   const [assets, setAssets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -42,6 +42,17 @@ export function AssetsTable({ user }) {
     return <p>{error}</p>;
   }
 
+  if (assets.length === 0) {
+    return (
+      <div className="text-center py-12 text-gray-400">
+        <p className="text-lg mb-2">No assets yet</p>
+        <p className="text-sm">
+          Add a transaction to start tracking your portfolio
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
       <Table className="w-full">
@@ -54,7 +65,6 @@ export function AssetsTable({ user }) {
             <TableHeadCell>Holdings</TableHeadCell>
             <TableHeadCell>Avg.Buy Price</TableHeadCell>
             <TableHeadCell>Profit/Loss</TableHeadCell>
-            <TableHeadCell className="text-right">Action</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody className="divide-y">
@@ -77,14 +87,6 @@ export function AssetsTable({ user }) {
                 }
               >
                 ${asset.profitLoss.toLocaleString()}
-              </TableCell>
-              <TableCell className="text-right">
-                <a
-                  href="#"
-                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                >
-                  Edit
-                </a>
               </TableCell>
             </TableRow>
           ))}
