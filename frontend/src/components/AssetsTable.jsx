@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { fetchMyAssets } from "../services/api.js";
 import { getMyAssets } from "../services/transactionApi.js";
 
-export function AssetsTable({ user }) {
+export function AssetsTable({ user, refreshTrigger }) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -32,7 +32,7 @@ export function AssetsTable({ user }) {
       }
     };
     getAssets();
-  }, []);
+  }, [refreshTrigger]);
 
   if (loading) {
     return <p>Loading...</p>;

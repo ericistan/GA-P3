@@ -11,7 +11,7 @@ export default function PortfolioPage({ user }) {
   const [showCoinModal, setShowCoinModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [transactionRefreshKey, setTransactionRefreshKey] = useState(0);
-
+  const [assetRefreshKey, setAssetRefreshKey] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState(null);
 
   return (
@@ -47,9 +47,10 @@ export default function PortfolioPage({ user }) {
               <AddTransactionModal
                 selectedCoin={selectedCoin}
                 setShowTransactionModal={setShowTransactionModal}
-                onSuccess={() =>
-                  setTransactionRefreshKey((currentKey) => currentKey + 1)
-                }
+                onSuccess={() => {
+                  setTransactionRefreshKey((currentKey) => currentKey + 1);
+                  setAssetRefreshKey((currentKey) => currentKey + 1);
+                }}
               />
             )}
           </div>
@@ -98,7 +99,7 @@ export default function PortfolioPage({ user }) {
       {/* Tabs & Table */}
       <Tabs>
         <Tabs.Item title="Assets" active>
-          <AssetsTable user={user} />
+          <AssetsTable user={user} refreshTrigger={assetRefreshKey} />
         </Tabs.Item>
         <Tabs.Item title="Transactions">
           <TransactionTable
