@@ -160,13 +160,13 @@ export function TransactionTable({ refreshTrigger, user }) {
               <TableCell className="text-right">
                 <div className="flex justify-end gap-3">
                   <button
-                    onClick={""}
+                    // onClick={""}
                     className="text-gray-400 hover:text-blue-400 cursor-pointer transition"
                   >
                     <Pencil size={16} />
                   </button>
                   <button
-                    onClick={""}
+                    // onClick={""}
                     className="text-gray-400 hover:text-red-400 cursor-pointer transition"
                   >
                     <Trash2 size={16} />

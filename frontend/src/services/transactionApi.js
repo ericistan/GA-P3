@@ -4,7 +4,7 @@ export const createTransaction = async (transactionData) => {
   try {
     const token = localStorage.getItem("token");
     const response = await fetch(`${BASE_URL}/transactions`, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
