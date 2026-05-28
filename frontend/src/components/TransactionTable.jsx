@@ -137,13 +137,15 @@ export function TransactionTable({ refreshTrigger, user }) {
                 <div className="flex">{transaction.time}</div>
               </TableCell>
               <TableCell>
-                <img
-                  src={transaction.coinType?.image || ""}
-                  alt={transaction.coinType?.name || "Unknown"}
-                  style={{ width: "24px", height: "24px" }}
-                />
-                {transaction.coinType?.name || "Unknown"}{" "}
-                {transaction.coinType?.symbol?.toUpperCase() || ""}
+                <div className="flex flex-row gap-3">
+                  <img
+                    src={transaction.coinType?.image || ""}
+                    alt={transaction.coinType?.name || "Unknown"}
+                    style={{ width: "24px", height: "24px" }}
+                  />
+                  {transaction.coinType?.name || "Unknown"}, (
+                  {transaction.coinType?.symbol?.toUpperCase() || ""})
+                </div>
               </TableCell>
               <TableCell>{transaction.pricePerCoin}</TableCell>
               <TableCell>

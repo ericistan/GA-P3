@@ -21,31 +21,31 @@ const waitForLock = async () => {
 export const initCronJobs = () => {
   console.log("⏰ Background cron engine initializing...");
 
-  // Job: to fetch 24hr 5 min interval price on desired coin id for every 15 min
-  cron.schedule("*/15 * * * *", async () => {
-    await waitForLock();
-    isDbSyncing = true;
-    try {
-      await sync24hrHistories();
-    } catch (error) {
-      console.error("❌ Background cron failed:", error.message);
-    } finally {
-      isDbSyncing = false; // 🔓 Always release the lock when done
-    }
-  });
+  // // Job: to fetch 24hr 5 min interval price on desired coin id for every 15 min
+  // cron.schedule("*/15 * * * *", async () => {
+  //   await waitForLock();
+  //   isDbSyncing = true;
+  //   try {
+  //     await sync24hrHistories();
+  //   } catch (error) {
+  //     console.error("❌ Background cron failed:", error.message);
+  //   } finally {
+  //     isDbSyncing = false; // 🔓 Always release the lock when done
+  //   }
+  // });
 
-  // Job: to fetch 30days 1hr interval price on desired coin id for ever
-  cron.schedule("2 * * * *", async () => {
-    await waitForLock();
-    isDbSyncing = true;
-    try {
-      await sync30daysHistories();
-    } catch (error) {
-      console.error("❌ Background cron failed:", error.message);
-    } finally {
-      isDbSyncing = false; // 🔓 Always release the lock when done
-    }
-  });
+  // // Job: to fetch 30days 1hr interval price on desired coin id for ever
+  // cron.schedule("2 * * * *", async () => {
+  //   await waitForLock();
+  //   isDbSyncing = true;
+  //   try {
+  //     await sync30daysHistories();
+  //   } catch (error) {
+  //     console.error("❌ Background cron failed:", error.message);
+  //   } finally {
+  //     isDbSyncing = false; // 🔓 Always release the lock when done
+  //   }
+  // });
 
   // Job: to fetch top 250coins
   cron.schedule("*/15 * * * *", async () => {

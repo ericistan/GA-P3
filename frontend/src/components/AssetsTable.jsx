@@ -118,12 +118,19 @@ export function AssetsTable({ user, refreshTrigger, getAssetToPortfolio }) {
                 className="bg-white dark:border-gray-700 dark:bg-gray-800"
               >
                 <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                  <img
-                    src={asset.image}
-                    alt={asset.name}
-                    style={{ width: "24px", height: "24px" }}
-                  />
-                  {asset.name}, {asset.symbol?.toUpperCase()}
+                  <div className="flex flex-row gap-3">
+                    <img
+                      src={asset.image ?? ""}
+                      alt={asset.name ?? "Unknown"}
+                      style={{ width: "24px", height: "24px" }}
+                    />
+                    {asset.name ?? "Unknown"},{" "}
+                    {asset.symbol && (
+                      <span className="text-gray-400 text-sm font-normal">
+                        ({asset.symbol.toUpperCase()})
+                      </span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="font-semibold">
                   ${asset.currentPrice.toLocaleString()}
