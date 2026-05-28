@@ -17,6 +17,7 @@ export default function PortfolioPage({ user }) {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 pt-24">
       {/* Header */}
+
       <div className="mb-8">
         <div className="flex justify-between items-start mb-4">
           <div>
