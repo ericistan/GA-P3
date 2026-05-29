@@ -12,6 +12,7 @@ import DecryptedText from "../components/DecryptedText.jsx";
 export default function PortfolioPage({ user }) {
   const [showCoinModal, setShowCoinModal] = useState(false);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
   const [chartType, setChartType] = useState("line");
   const [transactionRefreshKey, setTransactionRefreshKey] = useState(0);
   const [assetRefreshKey, setAssetRefreshKey] = useState(0);
@@ -153,7 +154,10 @@ export default function PortfolioPage({ user }) {
           </div>
           <div className="flex gap-2">
             <Button
-              onClick={() => setShowCoinModal(true)}
+              onClick={() => {
+                setEditingTransaction(null);
+                setShowTransactionModal(true);
+              }}
               className="bg-blue-600"
             >
               + Add Transaction
@@ -169,7 +173,9 @@ export default function PortfolioPage({ user }) {
             {showTransactionModal && (
               <AddTransactionModal
                 selectedCoin={selectedCoin}
+                editingTransaction={editingTransaction}
                 setShowTransactionModal={setShowTransactionModal}
+                setEditingTransaction={setEditingTransaction}
                 onSuccess={() => {
                   setTransactionRefreshKey((currentKey) => currentKey + 1);
                   setAssetRefreshKey((currentKey) => currentKey + 1);
@@ -314,6 +320,8 @@ export default function PortfolioPage({ user }) {
           <TransactionTable
             user={user}
             refreshTrigger={transactionRefreshKey}
+            setEditingTransaction={setEditingTransaction}
+            setShowTransactionModal={setShowTransactionModal}
           />
         </Tabs.Item>
       </Tabs>
