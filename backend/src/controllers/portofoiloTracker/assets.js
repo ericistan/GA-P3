@@ -132,123 +132,6 @@ export const getPortfolio = async (req, res) => {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const testHistoricalHoldings = async (req, res) => {
-  try {
-    // 1. Fetch user & populate transactions
-    const userIdFromToken = req.user.id.toString();
-    const user = await UserModel.findById(userIdFromToken).populate(
-      "transactions.coinType",
-      "-__v",
-    );
-    if (!user) return res.status(400).json({ msg: "User not found" });
-
-    const userTransactions = user.transactions || [];
-
-    // 2. Extract unique coin IDs from the transactions
-    const uniqueCoinIds = Array.from(
-      new Set(
-        userTransactions
-          .map((tx) =>
-            tx.coinType && tx.coinType._id ? tx.coinType._id.toString() : null,
-          )
-          .filter(Boolean),
-      ),
-    );
-
-    // ==========================================
-    // MODULE A: Generate 5-Min Milestones (Past 24H)
-    // ==========================================
-    const milestones = [];
-    const now = new Date();
-
-    // Round current time down to the nearest 5 minutes
-    const currentBucketTime = new Date(now);
-    currentBucketTime.setMinutes(
-      Math.floor(currentBucketTime.getMinutes() / 5) * 5,
-      0,
-      0,
-    );
-
-    // Generate 288 milestones (5 mins * 288 = 24 hours) working backward
-    for (let i = 288; i >= 0; i--) {
-      const milestoneDate = new Date(
-        currentBucketTime.getTime() - i * 5 * 60 * 1000,
-      );
-      milestones.push(milestoneDate.toISOString());
-    }
-
-    // ==========================================
-    // MODULE B: Normalize Your Split-Field DB Transactions (FIXED FIELD MAPPING)
-    // ==========================================
-    const cleanedTransactions = userTransactions
-      .map((tx) => {
-        let txMs = 0;
-        if (tx.date) {
-          // Extract "YYYY-MM-DD" from your midnight-bound DB date
-          const baseDateStr = new Date(tx.date).toISOString().split("T")[0];
-          // Clean your string time field (e.g., "21:40")
-          const baseTimeStr =
-            tx.time && tx.time.trim() ? tx.time.trim() : "00:00";
-
-          // Force them together into an absolute UTC Unix timestamp integer
-          txMs = new Date(`${baseDateStr}T${baseTimeStr}:00.000Z`).getTime();
-        }
-
-        return {
-          coinId:
-            tx.coinType && tx.coinType._id ? tx.coinType._id.toString() : null,
-          type: tx.transType || tx.type, // 🚀 FIX: Handles 'transType' or 'type' safely
-          amount: Number(tx.quantity) || Number(tx.amount) || 0, // 🚀 FIXED: Reads 'quantity' from your database!
-          txMs,
-          readableDate: tx.date,
-          readableTime: tx.time,
-        };
-      })
-      .filter((tx) => tx.coinId);
-
-    // ==========================================
-    // MODULE C: Process Running Balance Ledger
-    // ==========================================
-    const holdingsTimeline = milestones.map((timeStr) => {
-      const currentMilestoneMs = new Date(timeStr).getTime();
-
-      // Setup an empty balance sheet snapshot for this specific milestone
-      const snapshotBalances = {};
-      uniqueCoinIds.forEach((id) => {
-        snapshotBalances[id] = 0;
-      });
-
-      // Accumulate only the transactions that occurred BEFORE or AT this milestone
-      cleanedTransactions.forEach((tx) => {
-        if (tx.txMs > currentMilestoneMs) return; // Ignore future actions
-
-        if (tx.type === "buy") {
-          snapshotBalances[tx.coinId] += tx.amount;
-        } else if (tx.type === "sell") {
-          snapshotBalances[tx.coinId] -= tx.amount;
-        }
-      });
-
-      return {
-        milestone: timeStr,
-        localHumanTime: new Date(timeStr).toLocaleString(), // Helps us debug timezone offsets
-        balances: snapshotBalances,
-      };
-    });
-
-    // Send back the data logs so we can see if your tokens populate!
-    res.json({
-      totalMilestonesGenerated: holdingsTimeline.length,
-      detectedCoins: uniqueCoinIds,
-      rawTransactionsInspected: cleanedTransactions,
-      data: holdingsTimeline, // Check if balances grow from 0 to your current holdings!
-    });
-  } catch (error) {
-    console.error("Holdings tracking failure:", error.stack || error.message);
-    res.status(500).json({ msg: "Internal server error" });
-  }
-};
-
 export const getOrSyncPortfolioHistory = async (req, res) => {
   try {
     // ==========================================
@@ -335,7 +218,7 @@ export const getOrSyncPortfolioHistory = async (req, res) => {
       }
     }
     // ==========================================
-    // 4. Fetch up-to-date histories & merge timestamps (SHIFTED TO SGT)
+    // 4. Fetch up-to-date histories & merge timestamps (SGT Clean String Format)
     // ==========================================
     const updatedHistories = await Crypto24hrHistory.find({
       _id: { $in: uniqueCoinIds },
@@ -347,23 +230,24 @@ export const getOrSyncPortfolioHistory = async (req, res) => {
       const currentCoinId = coinRecord._id.toString();
 
       coinRecord.price_history.forEach((point) => {
-        // 1. Parse the CoinGecko UTC timestamp
         const utcDateObj = new Date(point.timestamp);
 
-        // 2. 🚀 THE TIMEZONE FIX: Force-shift the UTC time forward by 8 hours to align with Singapore Time (SGT)
+        // 1. Shift forward 8 hours to align with Singapore Time
         const sgtDateObj = new Date(utcDateObj.getTime() + 8 * 60 * 60 * 1000);
 
-        // 3. Standardize time to 5-minute intervals in SGT
-        const rawMinutes = sgtDateObj.getUTCMinutes(); // Use UTC methods now that the underlying value is shifted
+        // 2. Standardize down to 5-minute intervals
+        const rawMinutes = sgtDateObj.getUTCMinutes();
         const bucketedMinutes = Math.floor(rawMinutes / 5) * 5;
         sgtDateObj.setUTCMinutes(bucketedMinutes, 0, 0);
 
-        const timeStr = sgtDateObj.toISOString();
+        // 3. 🚀 THE CRITICAL FIX: Strip off the trailing "Z" flag so parsers don't revert it
+        // Transforms "2026-05-29T21:40:00.000Z" -> "2026-05-29T21:40:00.000"
+        const cleanSgtTimeStr = sgtDateObj.toISOString().replace("Z", "");
 
-        if (!priceTimelineMap[timeStr]) {
-          priceTimelineMap[timeStr] = {};
+        if (!priceTimelineMap[cleanSgtTimeStr]) {
+          priceTimelineMap[cleanSgtTimeStr] = {};
         }
-        priceTimelineMap[timeStr][currentCoinId] = point.price;
+        priceTimelineMap[cleanSgtTimeStr][currentCoinId] = point.price;
       });
     });
 
@@ -395,7 +279,7 @@ export const getOrSyncPortfolioHistory = async (req, res) => {
           const baseTimeStr =
             tx.time && tx.time.trim() ? tx.time.trim() : "00:00";
 
-          // 🚀 This matches your front-end input directly as literal local SGT numbers
+          // Match front-end inputs directly as local numbers
           txMs = new Date(`${baseDateStr}T${baseTimeStr}:00.000Z`).getTime();
         }
 
@@ -403,7 +287,7 @@ export const getOrSyncPortfolioHistory = async (req, res) => {
           coinId:
             tx.coinType && tx.coinType._id ? tx.coinType._id.toString() : null,
           type: tx.transType || tx.type,
-          amount: Number(tx.quantity) || Number(tx.amount) || 0,
+          amount: Number(tx.quantity) || Number(tx.amount) || 0, // Keeps your working quantity fix
           txMs,
         };
       })
@@ -416,20 +300,20 @@ export const getOrSyncPortfolioHistory = async (req, res) => {
 
     sortedTimelineKeys.forEach((timeStr) => {
       balanceTimelineMap[timeStr] = {};
-      const currentBucketMs = new Date(timeStr).getTime();
 
-      // Initialize snapshot holdings to 0
+      // Appending "Z" here strictly for the internal loop millisecond boundary check
+      const currentBucketMs = new Date(`${timeStr}Z`).getTime();
+
       uniqueCoinIds.forEach((id) => {
         balanceTimelineMap[timeStr][id] = 0;
       });
 
-      // Accumulate only historical balances up to this chart milestone
       cleanedTransactions.forEach((tx) => {
-        if (tx.txMs > currentBucketMs) return; // Skip future transactions
+        if (tx.txMs > currentBucketMs) return;
 
-        if (tx.type === "buy") {
+        if (tx.type === "buy" || tx.type === "Buy") {
           balanceTimelineMap[timeStr][tx.coinId] += tx.amount;
-        } else if (tx.type === "sell") {
+        } else if (tx.type === "sell" || tx.type === "Sell") {
           balanceTimelineMap[timeStr][tx.coinId] -= tx.amount;
         }
       });
@@ -451,14 +335,13 @@ export const getOrSyncPortfolioHistory = async (req, res) => {
       });
 
       return {
-        timestamp: timeStr, // This timestamp payload string is now localized to SGT format
+        timestamp: timeStr, // Sent as a clean local string (e.g., "2026-05-29T21:40:00.000")
         value: Number(totalPortfolioValue.toFixed(4)),
       };
     });
 
-    // Send back the cleanly mapped historical graph dataset
     res.json({
-      status: "Fetch and sync executed successfully via SGT Timezone Alignment",
+      status: "Fetch and sync executed successfully via Raw SGT Layout",
       count: finalPortfolioTimeline.length,
       data: finalPortfolioTimeline,
     });
