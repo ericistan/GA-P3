@@ -100,9 +100,12 @@ export default function PortfolioPage({ user }) {
   if (!portfolio) {
     return (
       <div className="text-center py-12 text-gray-400">
+        <br />
+        <br />
+        <br />
         <p className="text-lg mb-2">No portfolio yet</p>
         <p className="text-sm">
-          Add a transaction to start tracking your portfolio
+          Please kindly register or log in to use the portfolio tracker.
         </p>
       </div>
     );
@@ -369,7 +372,7 @@ export default function PortfolioPage({ user }) {
             className={`${portfolioConfig[status_allTime]?.color} text-sm font-semibold`}
           >
             {portfolioConfig[status_allTime]?.icon}{" "}
-            {portfolio.allTimeProfitLossPercent.toFixed(3)}%
+            {portfolio.allTimeProfitLossPercent?.toFixed(3)}%
           </p>
         </div>
 
