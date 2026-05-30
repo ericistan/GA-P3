@@ -24,6 +24,7 @@ export const postWatch24hHistories = async (req, res) => {
   }
 };
 
+// for future use:
 export const postWatch30dHistories = async (req, res) => {
   try {
     const { coins } = req.body;
@@ -49,19 +50,6 @@ export const postTop250Coins = async (req, res) => {
     console.log(`🚀 Manual override trigger received for: ${"Default Setup"}`);
 
     const data = await syncTop250coins();
-
-    //TBD
-    // // 1. ADD THIS DEBUG LOG HERE 👇
-    // console.log(
-    //   "🔍 TYPE OF DATA:",
-    //   typeof data,
-    //   "IS ARRAY?:",
-    //   Array.isArray(data),
-    // );
-    // console.log("📦 ACTUAL DATA STRUCTURE:", JSON.stringify(data)); // logs first 500 characters
-
-    // const dataArray = Array.isArray(data) ? data : [data];
-    // // const dataArray = Array.isArray(data) ? data : [data];
 
     res.json({
       status: "ok",
