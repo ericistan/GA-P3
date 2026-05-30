@@ -10,8 +10,6 @@ import { protect } from "../../middlewares/auth.js";
 
 const router = express.Router();
 
-router.get("/read", readAllAssets);
-router.get("/seed", seedAssets);
 router.get("/", protect, getAssets);
 router.get("/all", protect, getPortfolio);
 router.get("/chart", protect, getOrSyncPortfolioHistory);
