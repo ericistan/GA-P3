@@ -25,6 +25,7 @@ function App() {
   const handleLogin = (userData) => {
     setUser(userData);
     setShowAuthModal(false);
+    window.location.href = "/";
   };
 
   // Handle logout by clearing user state and removing data from localStorage
@@ -32,6 +33,7 @@ function App() {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    window.location.href = "/";
   };
 
   return (

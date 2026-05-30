@@ -18,8 +18,13 @@ import { initCronJobs } from "./src/config/cron.js";
 dotenv.config();
 connectDB();
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
@@ -27,17 +32,17 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
-app.use(helmet());
-app.use(cors());
-app.use("/auth", auth);
-
-app.use(jsonErrorHandler);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Define all your routes and controllers here:
+app.use("/auth", auth);
 app.use("/api", getAPI);
 app.use("/db", getDB);
 app.use("/assets", assets);
 app.use("/transactions", transactions);
+
+app.use(jsonErrorHandler);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
