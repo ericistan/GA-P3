@@ -1,5 +1,7 @@
 import ericTanProfileImg from "../assets/eric-tan-profile-img.png";
 import lincolnImg from "../assets/LK-cartoon-2026_2.PNG";
+import kennethProfileImg from "../../assets/azuki-nft-411.jpg";
+import DecryptedText from "../ui/DecryptedText.jsx";
 
 const LinkedinIcon = () => (
   <svg viewBox="0 0 24 24" className="size-5" fill="currentColor">
